@@ -5,19 +5,17 @@ jobs:
   on_comment:
     runs-on: ubuntu-latest
     if: github.event.comment
-    # outputs:
-    #   formatted_body: ${{ steps.format.outputs.body }}
     steps:
       - name: 'format comment body & title'
         id: format
         run: |
-          # all newline convert to \n
-          title=${title//\"/'%5C%22'}
           title='${{ github.event.discussion.title}}'
           body='${{ github.event.comment.body }}'
+          # all newline convert to \n
           body=${body//$'\r'/'%0A'}
           body=${body//$'\n'/'%0A'}
           # escape double quote
+          title=${title//\"/'%5C%22'}
           body=${body//\"/'%5C%22'}
           echo "title: $title"
           echo "body: $body"
