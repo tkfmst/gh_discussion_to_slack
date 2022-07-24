@@ -1,0 +1,69 @@
+on:
+  discussion_comment:
+    types: [created]
+jobs:
+  on_comment:
+    runs-on: ubuntu-latest
+    if: github.event.comment
+    # outputs:
+    #   formatted_body: ${{ steps.format.outputs.body }}
+    steps:
+      - name: 'format comment body & title'
+        id: format
+        run: |
+          title=${title//\"/'%5C%22'}
+          title='${{ github.event.discussion.title}}'
+          body='${{ github.event.comment.body }}'
+          body=${body//$'\r'/'%0A'}
+          body=${body//$'\n'/'%0A'}
+          body=${body//\"/'%5C%22'}
+          echo "title: $title"
+          echo "body: $body"
+          echo "::set-output name=title::${title}"
+          echo "::set-output name=body::${body}"
+      - name: 'request to slack'
+        id: request
+        run: |
+          curl -X POST 'https://slack.com/api/chat.postMessage' \
+            -d 'token=${{ secrets.DISCUSSION_COMMENT_TO_SLACK }}' \
+            -d 'channel=general' \
+            -d 'blocks=[
+                 {
+                   "type": "section",
+                   "text": {
+                     "type": "mrkdwn",
+                     "text": "<${{ github.event.comment.user.html_url}}|${{ github.event.comment.user.login }}> commented <${{ github.event.comment.html_url }}|${{ github.event.discussion.number }}/discussioncomment-${{ github.event.comment.id }}>"
+                   }
+                 },
+                 {
+                   "type": "divider"
+                 },
+                 {
+                   "type": "section",
+                   "text": {
+                     "type": "mrkdwn",
+                     "text": "*POST* ${{ github.event.discussion.category.emoji}}"
+                   }
+                 },
+                 {
+                   "type": "section",
+                   "text": {
+                     "type": "mrkdwn",
+                     "text": "${{ steps.format.outputs.title }} #${{ github.event.discussion.number}}"
+                   }
+                 },
+                 {
+                   "type": "section",
+                   "text": {
+                     "type": "mrkdwn",
+                     "text": "*COMMENT :speech_balloon:*"
+                   }
+                 },
+                 {
+                   "type": "section",
+                   "text": {
+                     "type": "mrkdwn",
+                     "text": "${{ steps.format.outputs.body }}"
+                   }
+                 }
+               ]'
