@@ -1,3 +1,3 @@
 # gh_discussions_comment_to_slack
 
-GitHub DiscussionsのCommentをSlackAPIへ送る
+GitHub Discussions Comment to SlackAPI

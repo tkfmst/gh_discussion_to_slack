@@ -11,11 +11,13 @@ jobs:
       - name: 'format comment body & title'
         id: format
         run: |
+          # all newline convert to \n
           title=${title//\"/'%5C%22'}
           title='${{ github.event.discussion.title}}'
           body='${{ github.event.comment.body }}'
           body=${body//$'\r'/'%0A'}
           body=${body//$'\n'/'%0A'}
+          # escape double quote
           body=${body//\"/'%5C%22'}
           echo "title: $title"
           echo "body: $body"
@@ -25,7 +27,7 @@ jobs:
         id: request
         run: |
           curl -X POST 'https://slack.com/api/chat.postMessage' \
-            -d 'token=${{ secrets.DISCUSSION_COMMENT_TO_SLACK }}' \
+            -d 'token=${{ secrets.SLACK_API_TOKEN_FOR_CHAT_WRITE}}' \
             -d 'channel=general' \
             -d 'blocks=[
                  {
