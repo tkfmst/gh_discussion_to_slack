@@ -17,8 +17,13 @@ jobs:
           # escape double quote
           title=${title//\"/'%5C%22'}
           body=${body//\"/'%5C%22'}
+          # escape ampersand
+          title=${title//&/'%26'}
+          body=${body//&/'%26'}
+          # confirm in gh-action
           echo "title: $title"
           echo "body: $body"
+          # set outputs
           echo "::set-output name=title::${title}"
           echo "::set-output name=body::${body}"
       - name: 'request to slack'
